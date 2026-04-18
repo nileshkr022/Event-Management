@@ -1,77 +1,129 @@
-const express = require("express");
-const Admin = require("../models/admin");
+const express = require('express');
+const User = require('../models/User');
+const Membership = require('../models/Membership');
+const { verifyToken, verifyRole } = require('../middleware/auth');
+const bcrypt = require('bcryptjs');
+
 const router = express.Router();
 
-// Create Admin
-router.post("/", async (req, res) => {
-  try {
-    const admin = new Admin(req.body);
-    await admin.save();
-    res.status(201).json(admin);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+// Get all users
+router.get('/users', verifyToken, verifyRole(['admin']), async (req, res) => {
+    try {
+        const users = await User.find({ role: 'user' }).select('-password');
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 });
 
-// Get All Admins
-router.get("/", async (req, res) => {
-  try {
-    const admins = await Admin.find(); // got all admins
-    res.json(admins);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+// Update user
+router.put('/users/:id', verifyToken, verifyRole(['admin']), async (req, res) => {
+    try {
+        const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 });
 
-// Delete a User
-router.delete("/:id", async (req, res) => {
-  try {
-    const adminId = req.params.id; // saves variable after colon as params
-
-    const admin = await Admin.findByIdAndDelete(adminId);
-
-    if (!admin) {
-      return res.status(404).json({ error: "User not found" });
+// Delete user
+router.delete('/users/:id', verifyToken, verifyRole(['admin']), async (req, res) => {
+    try {
+        await User.findByIdAndDelete(req.params.id);
+        res.json({ message: 'User deleted' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
-
-    res.json({ message: "Admin deleted successfully", admin });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
 });
 
-router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    // Validate input fields
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
+// Get all vendors
+router.get('/vendors', verifyToken, verifyRole(['admin']), async (req, res) => {
+    try {
+        const vendors = await User.find({ role: 'vendor' }).select('-password');
+        res.json(vendors);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
+});
 
-    // Find vendor by email
-    const admin = await Admin.findOne({ email });
-    if (!admin) {
-      return res.status(401).json({ error: "Invalid email or password" });
+// Get memberships
+router.get('/memberships', verifyToken, verifyRole(['admin']), async (req, res) => {
+    try {
+        const memberships = await Membership.find().populate('vendorId', 'name email');
+        res.json(memberships);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
+});
 
-    // Compare password (plain text)
-    if (admin.password !== password) {
-      return res.status(401).json({ error: "Invalid email or password" });
+// Add Membership
+router.post('/memberships', verifyToken, verifyRole(['admin']), async (req, res) => {
+    try {
+        const { vendorId, duration } = req.body;
+        
+        let months = 6;
+        if(duration === '1 year') months = 12;
+        if(duration === '2 years') months = 24;
+
+        const endDate = new Date();
+        endDate.setMonth(endDate.getMonth() + months);
+
+        const newMembership = new Membership({
+            vendorId,
+            duration,
+            endDate
+        });
+
+        await newMembership.save();
+        res.status(201).json(newMembership);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
+});
 
-    // Successful login
-    res
-      .status(200)
-      .json({
-        message: "Login successful",
-        adminId: admin._id,
-        name: admin.name,
-      });
-  } catch (error) {
-    console.error("Login error:", error); // Log the error for debugging
-    res.status(500).json({ error: "Server error", message: error.message });
-  }
+// Update Membership (Extend/Cancel)
+router.put('/memberships/:id', verifyToken, verifyRole(['admin']), async (req, res) => {
+    try {
+        const { action, duration } = req.body; 
+        const membership = await Membership.findById(req.params.id);
+        
+        if(!membership) return res.status(404).json({ message: 'Membership not found' });
+
+        if(action === 'Cancel') {
+            membership.status = 'Cancelled';
+        } else if (action === 'Extend') {
+            let months = 6;
+            if(duration === '1 year') months = 12;
+            if(duration === '2 years') months = 24;
+            
+            const newEndDate = new Date(membership.endDate);
+            newEndDate.setMonth(newEndDate.getMonth() + months);
+            membership.endDate = newEndDate;
+            membership.duration = duration || membership.duration;
+            membership.status = 'Active'; // Re-activate if was cancelled
+        }
+
+        await membership.save();
+        res.json(membership);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+
+// Change Admin Password
+router.put('/change-password', verifyToken, verifyRole(['admin']), async (req, res) => {
+    try {
+        const { newPassword } = req.body;
+        if (!newPassword || newPassword.length < 5) {
+            return res.status(400).json({ message: 'Password must be at least 5 characters long' });
+        }
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await User.findByIdAndUpdate(req.user.id, { password: hashedPassword });
+        res.json({ message: 'Password updated successfully' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 });
 
 module.exports = router;
