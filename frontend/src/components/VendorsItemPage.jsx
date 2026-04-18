@@ -26,7 +26,7 @@ const VendorItemsPage = () => {
     const fetchVendorData = async () => {
       try {
         // Fetch vendor details
-        const vendorResponse = await fetch(`http://localhost:8080/api/vendors/${vendorId}`);
+        const vendorResponse = await fetch(`http://localhost:5000/api/vendors/${vendorId}`);
         const vendorData = await vendorResponse.json();
         if (!vendorResponse.ok) {
           throw new Error(vendorData.error || "Failed to fetch vendor details.");
@@ -34,7 +34,7 @@ const VendorItemsPage = () => {
         setVendor(vendorData);
 
         // Fetch vendor items
-        const itemsResponse = await fetch(`http://localhost:8080/api/vendors/${vendorId}/items`);
+        const itemsResponse = await fetch(`http://localhost:5000/api/vendors/${vendorId}/items`);
         const itemsData = await itemsResponse.json();
         if (!itemsResponse.ok) {
           throw new Error(itemsData.error || "Failed to fetch vendor items.");

@@ -6,7 +6,7 @@ function AdminLogin() {
   return (
     <Login
       heading="Admin Login"
-      apiEndpoint="http://localhost:8080/api/admin/login"
+      apiEndpoint="http://localhost:5000/api/admin/login"
       redirectPath="/admin"
       role="admin"
     />

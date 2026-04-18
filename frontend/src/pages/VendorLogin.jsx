@@ -6,7 +6,7 @@ function VendorLogin() {
   return (
     <Login
       heading="Vendor Login"
-      apiEndpoint="http://localhost:8080/api/vendors/login"
+      apiEndpoint="http://localhost:5000/api/vendors/login"
       redirectPath="/vendor"
       role="vendor"
     />

@@ -10,7 +10,7 @@ function DelVendor() {
   return (
     <DelEntity
       entityType="vendor"
-      apiEndpoint="http://localhost:8080/api/vendors"
+      apiEndpoint="http://localhost:5000/api/vendors"
       entityLabel="Vendor"
       navigateHome={navigateHome}
     />

@@ -5,7 +5,7 @@ function VendorSignup() {
   return (
     <Signup
       heading="Vendor Sign Up"
-      apiEndpoint="http://localhost:8080/api/vendors"
+      apiEndpoint="http://localhost:5000/api/vendors"
       redirectPath="/vendor"
       loginPath="/vendor-login"
     />

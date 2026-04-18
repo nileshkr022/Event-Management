@@ -24,7 +24,7 @@ export const CartProvider = ({ children }) => {
       }
 
       try {
-        const response = await fetch(`http://localhost:8080/api/cart/${user.id}`);
+        const response = await fetch(`http://localhost:5000/api/cart/${user.id}`);
         if (!response.ok) {
           throw new Error(`Failed to fetch cart: ${response.statusText}`);
         }
@@ -54,7 +54,7 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/api/cart/${user.id}/add`, {
+      const response = await fetch(`http://localhost:5000/api/cart/${user.id}/add`, {
         method: 'POST',
         body: JSON.stringify(item),
         headers: { 'Content-Type': 'application/json' },
@@ -82,7 +82,7 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/api/cart/${user.id}/remove/${id}`, {
+      const response = await fetch(`http://localhost:5000/api/cart/${user.id}/remove/${id}`, {
         method: 'DELETE',
       });
 
@@ -106,7 +106,7 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/api/cart/${user.id}/update/${id}`, {
+      const response = await fetch(`http://localhost:5000/api/cart/${user.id}/update/${id}`, {
         method: 'PUT',
         body: JSON.stringify({ quantity: newQuantity }),
         headers: { 'Content-Type': 'application/json' },
@@ -132,7 +132,7 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/api/cart/${user.id}/deleteAll`, {
+      const response = await fetch(`http://localhost:5000/api/cart/${user.id}/deleteAll`, {
         method: 'DELETE',
       });
 

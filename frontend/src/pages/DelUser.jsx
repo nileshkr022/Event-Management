@@ -10,7 +10,7 @@ function DelUser() {
   return (
     <DelEntity
       entityType="user"
-      apiEndpoint="http://localhost:8080/api/users"
+      apiEndpoint="http://localhost:5000/api/users"
       entityLabel="User"
       navigateHome={navigateHome}
     />

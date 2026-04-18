@@ -22,7 +22,7 @@ function MaintainEntity() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/api/${role}s/update_membership`, {
+      const response = await fetch(`http://localhost:5000/api/${role}s/update_membership`, {
         method: "PATCH", // Use PATCH for updating existing resource
         headers: {
           "Content-Type": "application/json",

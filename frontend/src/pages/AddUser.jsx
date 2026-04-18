@@ -33,7 +33,7 @@ function AddUser() {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/users', {
+      const response = await fetch('http://localhost:5000/api/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

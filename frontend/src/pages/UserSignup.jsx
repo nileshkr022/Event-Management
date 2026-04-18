@@ -5,7 +5,7 @@ function UserSignup() {
   return (
     <Signup
       heading="User Sign Up"
-      apiEndpoint="http://localhost:8080/api/users"
+      apiEndpoint="http://localhost:5000/api/users"
       redirectPath="/user"
       loginPath="/user-login"
     />
